@@ -1,25 +1,16 @@
-export const colors = {
-    primary: '#927d7d85',
-    warning: '#ffcc00',
-    error: '#ff0000',
-    success: '#00ff00',
-
-    dark: {
-        background: '#000000',
-        text: '#ffffff',
-        title: '#00ff00',
-        navBackground: '#333333',
-        iconColor: '#ffcc00',
-        uiBackground: '#333333',
-        iconColorFocused: '#ff0000',
-    },
-
-    light:{
-        background: '#ffffff',
-        text: '#000000',
-        title: '#008cff',
-        iconColorFocused: '#614545',
-        uiBackground: '#f0f0f0',
-        iconColor: '#5f4e09',  
-    }
-}
+export const Colors = {
+  light: {
+    primary: '#0F766E', // AfyaDirect Custom Green
+    background: '#FFFFFF',
+    text: '#1F2937',
+    surface: '#F3F4F6',
+    border: '#E5E7EB',
+  },
+  dark: {
+    primary: '#2DD4BF',
+    background: '#111827',
+    text: '#F9FAFB',
+    surface: '#1F2937',
+    border: '#374151',
+  }
+};
