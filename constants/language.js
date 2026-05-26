@@ -1,5 +1,12 @@
 export const Translations = {
   en: {
+    skip: "Skip",
+  next: "Next",
+  getStarted: "Get Started",
+  welcome: "Welcome to MedConnect",
+  consultDoctors: "Consult Specialists",
+  chatInstead: "Instant Chat Support",
+  payMobile: "Secure Wallet Payments",
     welcomeBack: "Welcome Back",
     loginSubtitle: "Log in to access your healthcare dashboard.",
     phoneOrEmail: "Phone Number or Email",
@@ -34,6 +41,14 @@ export const Translations = {
     totalAmount: "Total Amount"
   },
   sw: {
+
+
+    skip: "Ruka",
+  next: "Mbele",
+  getStarted: "Anza Sasa",
+  welcome: "Karibu MedConnect",
+  consultDoctors: "Ongea na Madaktari",
+  chatInstead: "Soga la Papo Hapo",
     welcomeBack: "Karibu Tena",
     loginSubtitle: "Ingia ili ufikie ukurasa wako wa matibabu.",
     phoneOrEmail: "Namba ya Simu au Barua Pepe",

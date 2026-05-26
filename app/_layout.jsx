@@ -1,6 +1,6 @@
 import React, { createContext, useState } from 'react';
 import { useColorScheme } from 'react-native';
-import { Stack } from 'expo-router';
+import { Slot } from 'expo-router';
 
 export const AppContext = createContext();
 
@@ -11,11 +11,7 @@ export default function RootLayout() {
 
   return (
     <AppContext.Provider value={{ theme, setTheme, lang, setLang }}>
-      <Stack screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="index" />
-        <Stack.Screen name="(auth)" />
-        <Stack.Screen name="(patient)" />
-      </Stack>
+      <Slot />
     </AppContext.Provider>
   );
 }

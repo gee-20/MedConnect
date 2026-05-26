@@ -1,117 +1,5 @@
-// import React, { useState, useContext } from 'react';
-// import { View, Text, TextInput, StyleSheet, Alert } from 'react-native';
-// import { useRouter } from 'expo-router';
-// import { AppContext } from '../_layout';
-// import { Translations } from '../../constants/language';
-// import { Colors } from '../../constants/colors';
-// import AnimatedButton from '../../Components/AnimatedButton';
-
-// export default function Login() {
-//   const router = useRouter();
-//   const { theme, lang } = useContext(AppContext);
-//   const activeColors = Colors[theme];
-//   const t = Translations[lang];
-
-//   const [identity, setIdentity] = useState('');
-//   const [password, setPassword] = useState('');
-
-//   const handleLogin = () => {
-//     if (!identity || !password) {
-//       Alert.alert("Error", "Tafadhali jaza nafasi zote / Please fill all fields.");
-//       return;
-//     }
-
-//     const cleanInput = identity.toLowerCase().trim();
-
-//     // Context Role Router Routing Engine
-//     if (cleanInput === 'admin' || cleanInput.includes('@tanzaniafyadirect')) {
-//       router.replace('/(admin)/user_management');
-//     } else if (cleanInput.startsWith('dr.') || cleanInput.includes('doctor')) {
-//       router.replace('/(doctor)/queue');
-//     } else {
-//       router.replace('/(patient)/dashboard');
-//     }
-//   };
-
-//   const handleGoogleSignIn = () => {
-//     Alert.alert("Google Auth", "Connecting with secure Google authentication service...");
-//   };
-
-//   return (
-//     <View style={[styles.container, { backgroundColor: activeColors.background }]}>
-//       <View style={styles.brandBox}>
-//         <Text style={[styles.brandText, { color: activeColors.primary }]}>AfyaDirect</Text>
-//         <Text style={styles.subText}>Bima ya Afya ya Kidijitali mikononi mwako.</Text>
-//       </View>
-
-//       <View style={styles.form}>
-//         <TextInput 
-//           style={[styles.input, { borderColor: activeColors.border, color: activeColors.text, backgroundColor: activeColors.surface }]}
-//           placeholder="Phone Number, Email or Username"
-//           placeholderTextColor="#9CA3AF"
-//           value={identity}
-//           onChangeText={setIdentity}
-//           autoCapitalize="none"
-//         />
-
-//         <TextInput 
-//           style={[styles.input, { borderColor: activeColors.border, color: activeColors.text, backgroundColor: activeColors.surface }]}
-//           placeholder="Password"
-//           placeholderTextColor="#9CA3AF"
-//           secureTextEntry
-//           value={password}
-//           onChangeText={setPassword}
-//         />
-
-//         <AnimatedButton style={[styles.loginBtn, { backgroundColor: activeColors.primary }]} onPress={handleLogin}>
-//           <Text style={styles.loginBtnText}>Create Account</Text>
-//         </AnimatedButton>
-
-//         {/* --- GOOGLE INTERACTIVE DIVIDER & BUTTON --- */}
-//         <View style={styles.dividerRow}>
-//           <View style={[styles.line, { backgroundColor: activeColors.border }]} />
-//           <Text style={styles.dividerText}>or</Text>
-//           <View style={[styles.line, { backgroundColor: activeColors.border }]} />
-//         </View>
-
-//         <AnimatedButton style={[styles.googleBtn, { borderColor: activeColors.border }]} onPress={handleGoogleSignIn}>
-//           <Text style={styles.googleIcon}>🌐</Text>
-//           <Text style={[styles.googleBtnText, { color: activeColors.text }]}>Continue with Google</Text>
-//         </AnimatedButton>
-
-//         {/* --- FOOTER REGISTRATION LINK --- */}
-//         <AnimatedButton onPress={() => router.push('/(auth)/register')} style={styles.registerLink}>
-//           <Text style={{ color: activeColors.primary, textAlign: 'center', fontWeight: '500' }}>
-//             Don't have an account? Sign up now
-//           </Text>
-//         </AnimatedButton>
-//       </View>
-//     </View>
-//   );
-// }
-
-// const styles = StyleSheet.create({
-//   container: { flex: 1, padding: 24, justifyContent: 'center' },
-//   brandBox: { alignItems: 'center', marginBottom: 40 },
-//   brandText: { fontSize: 32, fontWeight: 'bold', letterSpacing: 1 },
-//   subText: { color: '#6B7280', marginTop: 8, fontSize: 14, textAlign: 'center' },
-//   form: { width: '100%' },
-//   input: { borderWidth: 1, borderRadius: 12, padding: 16, marginBottom: 16, fontSize: 15 },
-//   loginBtn: { padding: 16, borderRadius: 12, alignItems: 'center', marginTop: 8 },
-//   loginBtnText: { color: '#FFF', fontSize: 16, fontWeight: 'bold' },
-//   dividerRow: { flexDirection: 'row', alignItems: 'center', marginVertical: 20 },
-//   line: { flex: 1, height: 1 },
-//   dividerText: { marginHorizontal: 10, color: '#9CA3AF', fontSize: 14 },
-//   googleBtn: { flexDirection: 'row', borderWidth: 1, padding: 16, borderRadius: 12, alignItems: 'center', justifyContent: 'center', gap: 10 },
-//   googleIcon: { fontSize: 18 },
-//   googleBtnText: { fontSize: 15, fontWeight: '600' },
-//   registerLink: { marginTop: 24 }
-// });
-
-
-
 import React, { useState, useContext } from 'react';
-import { View, Text, TextInput, StyleSheet, Alert } from 'react-native';
+import { View, Text, TextInput, StyleSheet, Alert, Image } from 'react-native';
 import { useRouter } from 'expo-router';
 import { AppContext } from '../_layout';
 import { Translations } from '../../constants/language';
@@ -126,6 +14,51 @@ export default function Login() {
 
   const [identity, setIdentity] = useState('');
   const [password, setPassword] = useState('');
+
+  // NOTE: Simple in-memory user store for local/dev testing.
+  // Replace with real authentication API in production.
+  const USERS = [
+    { id: 1, email: 'admin@afya.com', password: 'adminpass', role: 'Admin' },
+    { id: 2, email: 'dr.jane@doctor.com', password: 'docpass123', role: 'Doctor' },
+    { id: 3, email: 'patient1@example.com', password: 'patientpass', role: 'Patient' }
+  ];
+
+  const handleLogin = () => {
+    if (!identity || !password) {
+      Alert.alert('Error', 'Please enter both email/username and password.');
+      return;
+    }
+
+    const credential = identity.toLowerCase().trim();
+
+    // Find by exact email match for now
+    const user = USERS.find(u => u.email.toLowerCase() === credential);
+
+    if (!user) {
+      Alert.alert('Account not found', 'No account matches those credentials. Please register or check your email.');
+      return;
+    }
+
+    if (user.password !== password) {
+      Alert.alert('Invalid credentials', 'The password entered is incorrect.');
+      return;
+    }
+
+    // Enforce doctor email rule: must contain 'doctor.com'
+    if (user.role === 'Doctor' && !user.email.includes('doctor.com')) {
+      Alert.alert('Invalid Doctor Account', 'Doctor accounts must use an email containing "doctor.com".');
+      return;
+    }
+
+    // Route to role-specific area
+    if (user.role === 'Admin') {
+      router.replace('/(admin)/user_management');
+    } else if (user.role === 'Doctor') {
+      router.replace('/(doctor)/queue');
+    } else {
+      router.replace('/(patient)/book_consultation');
+    }
+  };
 
   return (
     <View style={[styles.container, { backgroundColor: activeColors.background }]}>
@@ -158,7 +91,7 @@ export default function Login() {
         <Text style={[styles.inputFieldTitle, { color: activeColors.text }]}>{t.phoneOrEmail}</Text>
         <TextInput 
           style={[styles.textInputStyle, { borderColor: activeColors.border, color: activeColors.text }]}
-          placeholder="e.g., +254 700 000 000"
+          placeholder="e.g., patient1@example.com"
           placeholderTextColor="#9CA3AF"
           value={identity}
           onChangeText={setIdentity}
@@ -180,7 +113,7 @@ export default function Login() {
 
         <AnimatedButton 
           style={[styles.primaryActionBtn, { backgroundColor: activeColors.primary }]} 
-          onPress={() => router.replace('/(patient)/dashboard')}
+          onPress={handleLogin}
         >
           <Text style={styles.primaryActionText}>{t.logIn}</Text>
         </AnimatedButton>
@@ -192,7 +125,11 @@ export default function Login() {
         </View>
 
         <AnimatedButton style={[styles.googleAuthBtn, { borderColor: activeColors.border }]} onPress={() => Alert.alert("OAuth API Connection")}>
-          <Text style={styles.googleBrandIcon}>🌐</Text>
+          <Image 
+            source={require('../../assets/img/google.png')} 
+            style={styles.googleButtonIconStyle}
+            resizeMode="contain"
+          />
           <Text style={[styles.googleAuthText, { color: activeColors.text }]}>{t.continueGoogle}</Text>
         </AnimatedButton>
 
@@ -221,7 +158,9 @@ const styles = StyleSheet.create({
   langToggleBtn: { borderWidth: 1, paddingHorizontal: 12, paddingVertical: 6, borderRadius: 20 },
   langText: { fontSize: 12, fontWeight: 'bold' },
   themeIconEmoji: { fontSize: 20 },
-  card: { padding: 20, borderRadius: 16, borderWidth: 1, width: '100%', marginTop: 40 },
+  card: { padding: 20, borderRadius: 16, borderWidth: 1, width: '100%', marginTop: 60 },
+  brandImageContainer: { alignItems: 'center', justifyContent: 'center', marginBottom: 14 },
+  brandImageStyle: { width: 55, height: 55 },
   welcomeTitle: { fontSize: 24, fontWeight: 'bold', textAlign: 'center' },
   welcomeSubtitle: { color: '#6B7280', textAlign: 'center', fontSize: 14, marginTop: 6, marginBottom: 24 },
   inputFieldTitle: { fontSize: 14, fontWeight: '600', marginBottom: 6 },
@@ -232,8 +171,8 @@ const styles = StyleSheet.create({
   orDividerLineRow: { flexDirection: 'row', alignItems: 'center', marginVertical: 20 },
   horizontalLine: { flex: 1, height: 1 },
   orLabelText: { marginHorizontal: 10, color: '#9CA3AF', fontSize: 13, fontWeight: '600' },
-  googleAuthBtn: { flexDirection: 'row', borderWidth: 1, padding: 14, borderRadius: 10, justifyContent: 'center', alignItems: 'center', gap: 10 },
-  googleBrandIcon: { fontSize: 16 },
+  googleAuthBtn: { flexDirection: 'row', borderWidth: 1, padding: 14, borderRadius: 10, justifyContent: 'center', alignItems: 'center', gap: 12 },
+  googleButtonIconStyle: { width: 18, height: 18 },
   googleAuthText: { fontSize: 15, fontWeight: '600' },
   complianceRowArea: { flexDirection: 'row', justifyContent: 'space-around', marginTop: 30, opacity: 0.6 },
   complianceItemText: { fontSize: 11, color: '#6B7280', fontWeight: '600' }
