@@ -1,10 +1,17 @@
 import React, { useState, useContext } from 'react';
-import { View, Text, TextInput, StyleSheet, Alert, Image } from 'react-native';
+import { View, Text, TextInput, StyleSheet, Alert, Image, Modal } from 'react-native';
 import { useRouter } from 'expo-router';
 import { AppContext } from '../_layout';
 import { Translations } from '../../constants/language';
 import { Colors } from '../../constants/colors';
 import AnimatedButton from '../../Components/AnimatedButton';
+
+// Elevated globally so modifications survive modal state resets
+const IN_MEMORY_USERS = [
+  { id: 1, email: 'admin@afya.com', password: 'adminpass', role: 'Admin' },
+  { id: 2, email: 'dr.jane@doctor.com', password: 'docpass123', role: 'Doctor' },
+  { id: 3, email: 'patient1@example.com', password: 'patientpass', role: 'Patient' }
+];
 
 export default function Login() {
   const router = useRouter();
@@ -12,16 +19,18 @@ export default function Login() {
   const activeColors = Colors[theme];
   const t = Translations[lang];
 
+  // Core Login Card States
   const [identity, setIdentity] = useState('');
   const [password, setPassword] = useState('');
+  
+  // Dynamic state tracer to force update parent login screen elements
+  const [refreshTrigger, setRefreshTrigger] = useState(false);
 
-  // NOTE: Simple in-memory user store for local/dev testing.
-  // Replace with real authentication API in production.
-  const USERS = [
-    { id: 1, email: 'admin@afya.com', password: 'adminpass', role: 'Admin' },
-    { id: 2, email: 'dr.jane@doctor.com', password: 'docpass123', role: 'Doctor' },
-    { id: 3, email: 'patient1@example.com', password: 'patientpass', role: 'Patient' }
-  ];
+  // Forgot Password Modal State Elements
+  const [forgotModalVisible, setForgotModalVisible] = useState(false);
+  const [resetEmail, setResetEmail] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmNewPassword, setConfirmNewPassword] = useState('');
 
   const handleLogin = () => {
     if (!identity || !password) {
@@ -30,12 +39,10 @@ export default function Login() {
     }
 
     const credential = identity.toLowerCase().trim();
-
-    // Find by exact email match for now
-    const user = USERS.find(u => u.email.toLowerCase() === credential);
+    const user = IN_MEMORY_USERS.find(u => u.email.toLowerCase() === credential);
 
     if (!user) {
-      Alert.alert('Account not found', 'No account matches those credentials. Please register or check your email.');
+      Alert.alert('Account not found', 'No account matches those credentials.');
       return;
     }
 
@@ -44,26 +51,73 @@ export default function Login() {
       return;
     }
 
-    // Enforce doctor email rule: must contain 'doctor.com'
     if (user.role === 'Doctor' && !user.email.includes('doctor.com')) {
       Alert.alert('Invalid Doctor Account', 'Doctor accounts must use an email containing "doctor.com".');
       return;
     }
 
-    // Route to role-specific area
     if (user.role === 'Admin') {
       router.replace('/(admin)/user_management');
     } else if (user.role === 'Doctor') {
       router.replace('/(doctor)/queue');
     } else {
-      router.replace('/(patient)/book_consultation');
+      router.replace('/(patient)/dashboard');
     }
+  };
+
+  const handlePasswordResetSubmit = () => {
+    if (!resetEmail || !newPassword || !confirmNewPassword) {
+      Alert.alert('Error', 'Please complete all password update input parameters.');
+      return;
+    }
+
+    if (newPassword !== confirmNewPassword) {
+      Alert.alert('Mismatch', 'Your password entries do not match.');
+      return;
+    }
+
+    const targetEmail = resetEmail.toLowerCase().trim();
+    const userIndex = IN_MEMORY_USERS.findIndex(u => u.email.toLowerCase() === targetEmail);
+
+    if (userIndex === -1) {
+      Alert.alert('Not Found', 'No verified user matches that email address.');
+      return;
+    }
+
+    // Apply mutation directly to our app container memory
+    IN_MEMORY_USERS[userIndex].password = newPassword;
+
+    Alert.alert(
+      'Success 🎉', 
+      lang === 'en' ? 'Password updated successfully!' : 'Nenosiri limesasishwa kikamilifu!',
+      [
+        {
+          text: 'OK',
+          onPress: () => {
+            // Automatically push updated user info back to the main login inputs
+            setIdentity(resetEmail);
+            setPassword(newPassword);
+            
+            // Dismiss modal popup
+            setForgotModalVisible(false);
+            
+            // Force state refresh trace
+            setRefreshTrigger(!refreshTrigger);
+
+            // Clean setup input values
+            setResetEmail('');
+            setNewPassword('');
+            setConfirmNewPassword('');
+          }
+        }
+      ]
+    );
   };
 
   return (
     <View style={[styles.container, { backgroundColor: activeColors.background }]}>
       
-      {/* Top Header Controls Area matching Mockup */}
+      {/* Top Header Controls Area */}
       <View style={styles.topActionHeader}>
         <Text style={[styles.brandLogoText, { color: activeColors.primary }]}>AfyaDirect</Text>
         <View style={styles.controlsRow}>
@@ -74,10 +128,7 @@ export default function Login() {
             <Text style={[styles.langText, { color: activeColors.text }]}>{lang === 'en' ? 'EN | SW' : 'SW | EN'}</Text>
           </AnimatedButton>
           
-          <AnimatedButton 
-            style={styles.themeIconBtn} 
-            onPress={() => setTheme(theme === 'light' ? 'dark' : 'light')}
-          >
+          <AnimatedButton style={styles.themeIconBtn} onPress={() => setTheme(theme === 'light' ? 'dark' : 'light')}>
             <Text style={styles.themeIconEmoji}>{theme === 'light' ? '☀️' : '🌙'}</Text>
           </AnimatedButton>
         </View>
@@ -85,6 +136,7 @@ export default function Login() {
 
       {/* Main Authentication Core Card Layout */}
       <View style={[styles.card, { backgroundColor: activeColors.surface, borderColor: activeColors.border }]}>
+        
         <Text style={[styles.welcomeTitle, { color: activeColors.text }]}>{t.welcomeBack}</Text>
         <Text style={styles.welcomeSubtitle}>{t.loginSubtitle}</Text>
 
@@ -100,7 +152,9 @@ export default function Login() {
 
         <View style={styles.passwordHeaderRow}>
           <Text style={[styles.inputFieldTitle, { color: activeColors.text }]}>{t.password}</Text>
-          <Text style={{ color: activeColors.primary, fontSize: 13, fontWeight: '600' }}>{t.forgotPassword}</Text>
+          <AnimatedButton onPress={() => setForgotModalVisible(true)}>
+            <Text style={{ color: activeColors.primary, fontSize: 13, fontWeight: '600' }}>{t.forgotPassword}</Text>
+          </AnimatedButton>
         </View>
         <TextInput 
           style={[styles.textInputStyle, { borderColor: activeColors.border, color: activeColors.text }]}
@@ -111,10 +165,7 @@ export default function Login() {
           onChangeText={setPassword}
         />
 
-        <AnimatedButton 
-          style={[styles.primaryActionBtn, { backgroundColor: activeColors.primary }]} 
-          onPress={handleLogin}
-        >
+        <AnimatedButton style={[styles.primaryActionBtn, { backgroundColor: activeColors.primary }]} onPress={handleLogin}>
           <Text style={styles.primaryActionText}>{t.logIn}</Text>
         </AnimatedButton>
 
@@ -125,12 +176,10 @@ export default function Login() {
         </View>
 
         <AnimatedButton style={[styles.googleAuthBtn, { borderColor: activeColors.border }]} onPress={() => Alert.alert("OAuth API Connection")}>
-          <Image 
-            source={require('../../assets/img/google.png')} 
-            style={styles.googleButtonIconStyle}
-            resizeMode="contain"
-          />
-          <Text style={[styles.googleAuthText, { color: activeColors.text }]}>{t.continueGoogle}</Text>
+          <View style={styles.googleButtonContentRow}>
+            <Image source={require('../../assets/img/google.png')} style={styles.googleButtonIconStyle} resizeMode="contain" />
+            <Text style={[styles.googleAuthText, { color: activeColors.text }]}>{t.continueGoogle}</Text>
+          </View>
         </AnimatedButton>
 
         <AnimatedButton onPress={() => router.push('/(auth)/register')} style={{ marginTop: 20 }}>
@@ -139,6 +188,71 @@ export default function Login() {
           </Text>
         </AnimatedButton>
       </View>
+
+      {/* Forgot Password Modal Popup */}
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={forgotModalVisible}
+        onRequestClose={() => setForgotModalVisible(false)}
+      >
+        <View style={styles.modalOverlayBackground}>
+          <View style={[styles.modalContentCard, { backgroundColor: activeColors.surface, borderColor: activeColors.border }]}>
+            <Text style={[styles.modalHeaderTitle, { color: activeColors.text }]}>
+              {lang === 'en' ? 'Create New Password' : 'Unda Nenosiri Jipya'}
+            </Text>
+            <Text style={styles.modalSubheadingText}>
+              {lang === 'en' ? 'Enter account details to adjust internal parameters instantly' : 'Weka taarifa za akaunti yako kubadilisha nenosiri sasa'}
+            </Text>
+
+            <Text style={[styles.inputFieldTitle, { color: activeColors.text, marginTop: 10 }]}>Account Email</Text>
+            <TextInput
+              style={[styles.textInputStyle, { borderColor: activeColors.border, color: activeColors.text }]}
+              placeholder="e.g., patient1@example.com"
+              placeholderTextColor="#9CA3AF"
+              autoCapitalize="none"
+              value={resetEmail}
+              onChangeText={setResetEmail}
+            />
+
+            <Text style={[styles.inputFieldTitle, { color: activeColors.text }]}>New Password</Text>
+            <TextInput
+              style={[styles.textInputStyle, { borderColor: activeColors.border, color: activeColors.text }]}
+              placeholder="••••••••"
+              placeholderTextColor="#9CA3AF"
+              secureTextEntry
+              value={newPassword}
+              onChangeText={setNewPassword}
+            />
+
+            <Text style={[styles.inputFieldTitle, { color: activeColors.text }]}>Confirm New Password</Text>
+            <TextInput
+              style={[styles.textInputStyle, { borderColor: activeColors.border, color: activeColors.text }]}
+              placeholder="••••••••"
+              placeholderTextColor="#9CA3AF"
+              secureTextEntry
+              value={confirmNewPassword}
+              onChangeText={setConfirmNewPassword}
+            />
+
+            <View style={styles.modalActionButtonsRow}>
+              <AnimatedButton 
+                style={[styles.modalCancelButton, { borderColor: activeColors.border }]} 
+                onPress={() => setForgotModalVisible(false)}
+              >
+                <Text style={[styles.modalCancelText, { color: activeColors.text }]}>{lang === 'en' ? 'Cancel' : 'Ghairi'}</Text>
+              </AnimatedButton>
+
+              <AnimatedButton 
+                style={[styles.modalSubmitButton, { backgroundColor: activeColors.primary }]} 
+                onPress={handlePasswordResetSubmit}
+              >
+                <Text style={styles.modalSubmitText}>{lang === 'en' ? 'Update' : 'Sasisha'}</Text>
+              </AnimatedButton>
+            </View>
+          </View>
+        </View>
+      </Modal>
 
       {/* Compliance Information Footer */}
       <View style={styles.complianceRowArea}>
@@ -171,9 +285,20 @@ const styles = StyleSheet.create({
   orDividerLineRow: { flexDirection: 'row', alignItems: 'center', marginVertical: 20 },
   horizontalLine: { flex: 1, height: 1 },
   orLabelText: { marginHorizontal: 10, color: '#9CA3AF', fontSize: 13, fontWeight: '600' },
-  googleAuthBtn: { flexDirection: 'row', borderWidth: 1, padding: 14, borderRadius: 10, justifyContent: 'center', alignItems: 'center', gap: 12 },
+  googleAuthBtn: { borderWidth: 1, padding: 14, borderRadius: 10, justifyContent: 'center', alignItems: 'center' },
+  googleButtonContentRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10 },
   googleButtonIconStyle: { width: 18, height: 18 },
   googleAuthText: { fontSize: 15, fontWeight: '600' },
   complianceRowArea: { flexDirection: 'row', justifyContent: 'space-around', marginTop: 30, opacity: 0.6 },
-  complianceItemText: { fontSize: 11, color: '#6B7280', fontWeight: '600' }
+  complianceItemText: { fontSize: 11, color: '#6B7280', fontWeight: '600' },
+  
+  modalOverlayBackground: { flex: 1, backgroundColor: 'rgba(0,0,0,0.6)', justifyContent: 'center', alignItems: 'center', padding: 20 },
+  modalContentCard: { width: '100%', padding: 24, borderRadius: 20, borderWidth: 1, elevation: 5 },
+  modalHeaderTitle: { fontSize: 20, fontWeight: 'bold', textAlign: 'center', marginBottom: 6 },
+  modalSubheadingText: { fontSize: 13, color: '#6B7280', textAlign: 'center', marginBottom: 20, lineHeight: 18 },
+  modalActionButtonsRow: { flexDirection: 'row', gap: 12, marginTop: 10 },
+  modalCancelButton: { flex: 1, padding: 14, borderRadius: 10, borderWidth: 1, alignItems: 'center' },
+  modalCancelText: { fontSize: 15, fontWeight: '600' },
+  modalSubmitButton: { flex: 1, padding: 14, borderRadius: 10, alignItems: 'center' },
+  modalSubmitText: { color: '#FFF', fontSize: 15, fontWeight: 'bold' }
 });
