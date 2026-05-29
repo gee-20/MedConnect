@@ -45,6 +45,13 @@ export default function DoctorQueue() {
               <AnimatedButton style={[styles.secondaryBtn, { borderColor: activeColors.border }]}>
                 <Text style={[styles.secondaryBtnText, { color: activeColors.text }]}>Reschedule</Text>
               </AnimatedButton>
+              // Inside your app/(doctor)/queue.jsx file
+<AnimatedButton 
+  style={[styles.actionGridButton, { backgroundColor: activeColors.primary }]} 
+  onPress={() => router.push('/(doctor)/doctor_chat')} // <-- Matches file path perfectly!
+>
+  <Text style={styles.actionGridBtnLabelText}>💬 Launch Chat</Text>
+</AnimatedButton>
             </View>
           </View>
         )}

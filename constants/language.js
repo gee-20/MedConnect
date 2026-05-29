@@ -38,7 +38,35 @@ export const Translations = {
     paymentMethod: "Payment Method / Njia ya Malipo",
     mobileNumber: "Mobile Number / Namba ya Simu",
     payNow: "Pay Now / Lipa Sasa",
-    totalAmount: "Total Amount"
+    totalAmount: "Total Amount",
+
+   
+
+    // Modals & Forms
+    storedConsults: "My Scheduled Consultations",
+    noConsults: "No scheduled consultations active at this time.",
+    modifyNotes: "Modify Notes",
+    cancelAppt: "Cancel Appt",
+    updateSymptomsLog: "Update Symptoms Log",
+    confirmUpdate: "Confirm Update",
+    closePanel: "Close Panel",
+    selectCommMode: "Select Communication Mode",
+    commModeDesc: "Choose your preferred secure clinical contact channel:",
+    textChat: "Interactive Text Chat",
+    chatPending: "Not created yet — Environment Setup pending",
+    videoConsult: "Live Video Consultation",
+    videoActive: "Screen is fully functional & deployed",
+    allProviders: "All Registered Providers",
+    allProvidersDesc: "Sorted matches filtered by your diagnosed medical problems:",
+    select: "Select",
+
+    // Prescription / Intake Form
+    intakeTitle: "Consultant Clinical Intake Form",
+    intakeDesc: "Write out your health notes, chronic updates, or prescription logs below:",
+    selectTarget: "Select Target Consultant",
+    detailedLog: "Detailed Information Log",
+    placeholderIntake: "Provide a breakdown of active symptoms, long-term prescription details, or queries for your provider...",
+    transmitLog: "Transmit Log"
   },
   sw: {
 
@@ -74,6 +102,33 @@ export const Translations = {
     seeAll: "Ona Zote",
     bookNow: "Weka Nafasi",
     addToCart: "Weka Kwenye Kikapu",
+    
+    // Modals & Forms
+    storedConsults: "Miadi Yangu Iliyoratibiwa",
+    noConsults: "Hakuna miadi yoyote iliyopangwa kwa sasa.",
+    modifyNotes: "Badili Maelezo",
+    cancelAppt: "Ghairi Miadi",
+    updateSymptomsLog: "Sasisha Dalili Zako",
+    confirmUpdate: "Thibitisha Mabadiliko",
+    closePanel: "Funga Dirisha",
+    selectCommMode: "Chagua Njia ya Mawasiliano",
+    commModeDesc: "Chagua njia salama unayopendelea kuwasiliana na kliniki:",
+    textChat: "Soga ya Maandishi",
+    chatPending: "Haijakamilika — Matengenezo ya mfumo yanaendelea",
+    videoConsult: "Ushauri wa Video ya Moja kwa Moja",
+    videoActive: "Inafanya kazi kikamilifu na imesakinishwa",
+    allProviders: "Watoa Huduma Wote",
+    allProvidersDesc: "Orodha iliyochujwa kulingana na matatizo ya kiafya yanayokukabili:",
+    select: "Chagua",
+
+    // Prescription / Intake Form
+    intakeTitle: "Fomu ya Maelezo ya Awali ya Matibabu",
+    intakeDesc: "Andika maelezo ya afya yako, mabadiliko ya magonjwa ya muda mrefu, au rekodi za dawa hapa chini:",
+    selectTarget: "Chagua Daktari Mlengwa",
+    detailedLog: "Maelezo ya Kina ya Dalili",
+    placeholderIntake: "Toa mchanganuo wa dalili zako za sasa, maelezo ya dawa za muda mrefu, au maswali kwa mtoa huduma wako...",
+    transmitLog: "Tuma Taarifa",
+
     
     // Payment Page
     completePayment: "Kamilisha Malipo Yako",
