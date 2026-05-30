@@ -14,6 +14,7 @@ export default function AddConsultation() {
   const [preferredSpecialty, setPreferredSpecialty] = useState('');
   const [urgencyLevel, setUrgencyLevel] = useState('Routine');
 
+  
   const handleSubmitConsultation = () => {
     if (!symptoms || !preferredSpecialty) {
       Alert.alert(

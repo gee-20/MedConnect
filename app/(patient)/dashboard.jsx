@@ -10,7 +10,8 @@ import AnimatedButton from '../../Components/AnimatedButton';
 const AVAILABLE_DOCTORS = [
   { id: '1', name: 'Dr. Neema Mabula', specialty: 'General Practitioner', fee: 'TZS 35,000', rating: '4.8', image: '🏥' },
   { id: '2', name: 'Dr. Baraka Juma', specialty: 'Cardiologist', fee: 'TZS 50,000', rating: '4.9', image: '🩺' },
-  { id: '3', name: 'Dr. Sarah Kimaro', specialty: 'Pediatrician', fee: 'TZS 40,000', rating: '4.7', image: '👶' }
+  { id: '3', name: 'Dr. Rama', specialty: 'Pediatrician', fee: 'TZS 40,000', rating: '4.7', image: '🩺' },
+  { id: '4', name: 'Dr. Sarah Kimaro', specialty: 'Dermatologist', fee: 'TZS 42,000', rating: '4.8', image: '🩺' },
 ];
 
 let IN_MEMORY_CONSULTATIONS = [
@@ -24,7 +25,7 @@ export default function PatientDashboard() {
   const t = Translations[lang]; // Global language variable mapping active
   // --- Dynamic UI State Management ---
   const [activeConsultations, setActiveConsultations] = useState(IN_MEMORY_CONSULTATIONS);
-  
+
   // Modal Visibility Toggles
   const [myConsultsVisible, setMyConsultsVisible] = useState(false);
   const [commModeVisible, setCommModeVisible] = useState(false);
@@ -38,14 +39,14 @@ export default function PatientDashboard() {
   const [prescDetails, setPrescDetails] = useState('');
 
   // --- Core Functional Logic Triggers ---
-  
+
   // 1. My Consultations Management (Update & Cancel)
- const handleUpdateConsultation = () => {
+  const handleUpdateConsultation = () => {
     if (!editSymptoms.trim()) {
       Alert.alert('Error', lang === 'en' ? 'Please describe symptoms.' : 'Tafadhali eleza dalili.');
       return;
     }
-    IN_MEMORY_CONSULTATIONS = IN_MEMORY_CONSULTATIONS.map(c => 
+    IN_MEMORY_CONSULTATIONS = IN_MEMORY_CONSULTATIONS.map(c =>
       c.id === selectedConsultation.id ? { ...c, symptoms: editSymptoms } : c
     );
     setActiveConsultations(IN_MEMORY_CONSULTATIONS);
@@ -53,18 +54,20 @@ export default function PatientDashboard() {
     Alert.alert('Success', lang === 'en' ? 'Updated successfully.' : 'Imesasishwa kikamilifu.');
   };
 
- 
+
   const handleCancelConsultation = (id) => {
     Alert.alert(
       lang === 'en' ? 'Cancel Booking' : 'Ghairi Miadi',
       lang === 'en' ? 'Are you sure?' : 'Una uhakika unataka kughairi?',
       [
         { text: t.cancel, style: 'cancel' },
-        { text: 'OK', onPress: () => {
-          IN_MEMORY_CONSULTATIONS = IN_MEMORY_CONSULTATIONS.filter(c => c.id !== id);
-          setActiveConsultations(IN_MEMORY_CONSULTATIONS);
-          setSelectedConsultation(null);
-        }}
+        {
+          text: 'OK', onPress: () => {
+            IN_MEMORY_CONSULTATIONS = IN_MEMORY_CONSULTATIONS.filter(c => c.id !== id);
+            setActiveConsultations(IN_MEMORY_CONSULTATIONS);
+            setSelectedConsultation(null);
+          }
+        }
       ]
     );
   };
@@ -79,17 +82,19 @@ export default function PatientDashboard() {
     Alert.alert(
       'Information Dispatched 📨',
       `Your medical records and symptoms description files have been transmitted directly to ${targetDoc.name}.`,
-      [{ text: 'OK', onPress: () => {
-        setPrescriptionModalVisible(false);
-        setPrescDetails('');
-      }}]
+      [{
+        text: 'OK', onPress: () => {
+          setPrescriptionModalVisible(false);
+          setPrescDetails('');
+        }
+      }]
     );
   };
 
   return (
     <View style={[styles.container, { backgroundColor: activeColors.background }]}>
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-        
+
         {/* Top Header Greetings Area */}
         <View style={styles.headerArea}>
           <Text style={[styles.greetingMain, { color: activeColors.text }]}>Hi, Salome</Text>
@@ -110,7 +115,7 @@ export default function PatientDashboard() {
 
         {/* Primary Operational Action Layout Quadrants */}
         <View style={styles.quadGridRow}>
-          <AnimatedButton 
+          <AnimatedButton
             style={[styles.gridCard, { backgroundColor: activeColors.surface, borderColor: activeColors.border }]}
             onPress={() => router.push('/(patient)/book_consultation')}
           >
@@ -118,7 +123,7 @@ export default function PatientDashboard() {
             <Text style={[styles.gridActionLabel, { color: activeColors.text }]}>Book Consultation</Text>
           </AnimatedButton>
 
-          <AnimatedButton 
+          <AnimatedButton
             style={[styles.gridCard, { backgroundColor: activeColors.surface, borderColor: activeColors.border }]}
             onPress={() => setMyConsultsVisible(true)}
           >
@@ -129,7 +134,7 @@ export default function PatientDashboard() {
 
         {/* Inline Secondary Action Row Strip */}
         <View style={styles.horizontalActionStrip}>
-          <AnimatedButton 
+          <AnimatedButton
             style={[styles.stripCard, { backgroundColor: activeColors.surface, borderColor: activeColors.border }]}
             onPress={() => setCommModeVisible(true)}
           >
@@ -137,7 +142,7 @@ export default function PatientDashboard() {
             <Text style={[styles.stripLabel, { color: activeColors.text }]}>Chat with Doctor</Text>
           </AnimatedButton>
 
-          <AnimatedButton 
+          <AnimatedButton
             style={[styles.stripCard, { backgroundColor: activeColors.surface, borderColor: activeColors.border }]}
             onPress={() => setPrescriptionModalVisible(true)}
           >
@@ -167,8 +172,8 @@ export default function PatientDashboard() {
             </View>
             <View style={styles.doctorActionColumn}>
               <Text style={styles.docFeeValue}>{doc.fee}</Text>
-              <AnimatedButton 
-                style={styles.inlineBookButton} 
+              <AnimatedButton
+                style={styles.inlineBookButton}
                 onPress={() => router.push({ pathname: '/(patient)/book_consultation', params: { doctorId: doc.id } })}
               >
                 <Text style={styles.inlineBookBtnText}>Book</Text>
@@ -186,7 +191,7 @@ export default function PatientDashboard() {
         <View style={styles.modalOverlay}>
           <View style={[styles.modalCard, { backgroundColor: activeColors.surface, borderColor: activeColors.border }]}>
             <Text style={[styles.modalHeadline, { color: activeColors.text }]}>My Stored Consultations</Text>
-            
+
             {activeConsultations.length === 0 ? (
               <Text style={styles.emptyStateFallbackText}>No scheduled consultations active at this time.</Text>
             ) : (
@@ -195,8 +200,8 @@ export default function PatientDashboard() {
                   <View key={item.id} style={[styles.consultationRecordEntry, { borderColor: activeColors.border }]}>
                     <Text style={[styles.recordLabelTitle, { color: activeColors.text }]}>{item.doctorName}</Text>
                     <Text style={styles.recordSubMeta}>Scheduled: {item.date} at {item.time}</Text>
-                    <Text style={[styles.recordSymptomsLabel, { color: activeColors.text }]}>Stated Symptoms: <Text style={{fontWeight: '400', color: '#6B7280'}}>{item.symptoms}</Text></Text>
-                    
+                    <Text style={[styles.recordSymptomsLabel, { color: activeColors.text }]}>Stated Symptoms: <Text style={{ fontWeight: '400', color: '#6B7280' }}>{item.symptoms}</Text></Text>
+
                     <View style={styles.recordActionsGridContainer}>
                       <AnimatedButton style={styles.recordEditActionBtn} onPress={() => { setSelectedConsultation(item); setEditSymptoms(item.symptoms); }}>
                         <Text style={styles.recordActionBtnText}>Modify Notes</Text>
@@ -240,8 +245,8 @@ export default function PatientDashboard() {
             <Text style={[styles.modalHeadline, { color: activeColors.text }]}>Select Communication Mode</Text>
             <Text style={styles.modalSubDescriptionLabel}>Choose your preferred secure clinical contact channel mechanism:</Text>
 
-    
-             <AnimatedButton 
+
+            <AnimatedButton
               style={[styles.comChannelSelectRowButton, { borderColor: activeColors.primary, backgroundColor: 'rgba(15, 118, 110, 0.05)' }]}
               onPress={() => { setCommModeVisible(false); router.push('/(patient)/chart_screen'); }}
             >
@@ -252,7 +257,7 @@ export default function PatientDashboard() {
               </View>
             </AnimatedButton>
 
-            <AnimatedButton 
+            <AnimatedButton
               style={[styles.comChannelSelectRowButton, { borderColor: activeColors.primary, backgroundColor: 'rgba(15, 118, 110, 0.05)' }]}
               onPress={() => { setCommModeVisible(false); router.push('/(patient)/video_call'); }}
             >
@@ -285,7 +290,7 @@ export default function PatientDashboard() {
                     <Text style={[styles.docNameText, { color: activeColors.text }]}>{doc.name}</Text>
                     <Text style={styles.docSpecialtyText}>{doc.specialty}</Text>
                   </View>
-                  <AnimatedButton 
+                  <AnimatedButton
                     style={styles.inlineBookButton}
                     onPress={() => { setAllDoctorsVisible(false); router.push({ pathname: '/(patient)/book_consultation', params: { doctorId: doc.id } }); }}
                   >
@@ -312,8 +317,8 @@ export default function PatientDashboard() {
             <Text style={[styles.inputFieldTitle, { color: activeColors.text, alignSelf: 'flex-start' }]}>Select Target Consultant</Text>
             <View style={[styles.modalFormInputBox, { borderColor: activeColors.border, padding: 4, height: 50, justifyContent: 'center' }]}>
               {AVAILABLE_DOCTORS.map(d => (
-                <AnimatedButton 
-                  key={d.id} 
+                <AnimatedButton
+                  key={d.id}
                   style={[styles.miniDocSelectorPill, prescDoctorId === d.id && { backgroundColor: activeColors.primary }]}
                   onPress={() => setPrescDoctorId(d.id)}
                 >
@@ -354,7 +359,7 @@ const styles = StyleSheet.create({
   headerArea: { marginBottom: 20, paddingTop: 10 },
   greetingMain: { fontSize: 26, fontWeight: 'bold' },
   greetingSub: { fontSize: 15, color: '#6B7280', marginTop: 4 },
-  
+
   aiBanner: { backgroundColor: '#10B981', borderRadius: 16, padding: 20, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 25 },
   aiTextContainer: { flex: 1, paddingRight: 10 },
   aiTitle: { color: '#FFF', fontSize: 20, fontWeight: 'bold' },
