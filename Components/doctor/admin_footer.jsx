@@ -1,34 +1,65 @@
 import React, { useContext } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
-import { useRouter, useSegments } from 'expo-router';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { useRouter, usePathname } from 'expo-router';
 import { AppContext } from '../../app/_layout';
 import { Colors } from '../../constants/colors';
-import AnimatedButton from '../AnimatedButton';
 
 export default function DoctorFooter() {
   const { theme } = useContext(AppContext);
   const activeColors = Colors[theme];
   const router = useRouter();
-  const segments = useSegments();
+  const pathname = usePathname();
+
+  // Updated navigation items matching your layout rule specs exactly
+  const navItems = [
+    { id: 'dashboard', label: 'Dashboard', path: '/(doctor)', icon: '📊' },
+    { id: 'queue', label: 'Queue', path: '/(doctor)/queue', icon: '📋' },
+    { id: 'records', label: 'Records', path: '/(doctor)/records', icon: '📁' },
+    { id: 'earnings', label: 'Earnings', path: '/(doctor)/earnings', icon: '💵' },
+    { id: 'profile', label: 'Profile', path: '/(doctor)/profile', icon: '👤' },
+  ];
 
   return (
-    <View style={[styles.footer, { backgroundColor: activeColors.surface, borderColor: activeColors.border }]}>
-      <AnimatedButton onPress={() => router.push('/(doctor)/queue')} style={styles.navItem}>
-        <Text style={[styles.navIcon, { color: segments.includes('queue') ? activeColors.primary : '#9CA3AF' }]}>📋</Text>
-        <Text style={[styles.navText, { color: segments.includes('queue') ? activeColors.primary : '#9CA3AF' }]}>Foleni</Text>
-      </AnimatedButton>
-
-      <AnimatedButton onPress={() => router.push('/(doctor)/prescription')} style={styles.navItem}>
-        <Text style={[styles.navIcon, { color: segments.includes('prescription') ? activeColors.primary : '#9CA3AF' }]}>✍️</Text>
-        <Text style={[styles.navText, { color: segments.includes('prescription') ? activeColors.primary : '#9CA3AF' }]}>Andika Dawa</Text>
-      </AnimatedButton>
+    <View style={[styles.footerContainer, { backgroundColor: activeColors.surface, borderTopColor: activeColors.border }]}>
+      {navItems.map((item) => {
+        const isActive = pathname === item.path;
+        return (
+          <TouchableOpacity 
+            key={item.id} 
+            style={styles.navButton} 
+            onPress={() => router.push(item.path)}
+          >
+            <Text style={[styles.iconText, isActive && { opacity: 1 }]}>{item.icon}</Text>
+            <Text style={[styles.labelText, { color: isActive ? activeColors.primary : '#6B7280', fontWeight: isActive ? '700' : '500' }]}>
+              {item.label}
+            </Text>
+          </TouchableOpacity>
+        );
+      })}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  footer: { flexDirection: 'row', justifyContent: 'space-around', paddingVertical: 12, borderTopWidth: 1 },
-  navItem: { alignItems: 'center', flex: 1 },
-  navIcon: { fontSize: 20 },
-  navText: { fontSize: 11, marginTop: 2 }
+  footerContainer: {
+    flexDirection: 'row',
+    height: 64,
+    borderTopWidth: 1,
+    justifyContent: 'space-around',
+    alignItems: 'center',
+    paddingBottom: 4,
+  },
+  navButton: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    flex: 1,
+  },
+  iconText: {
+    fontSize: 18,
+    opacity: 0.6,
+  },
+  labelText: {
+    fontSize: 10,
+    marginTop: 2,
+  },
 });

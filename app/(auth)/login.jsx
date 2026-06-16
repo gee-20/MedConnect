@@ -1,5 +1,5 @@
 import React, { useState, useContext } from 'react';
-import { View, Text, TextInput, StyleSheet, Alert, Image, Modal } from 'react-native';
+import { View, Text, TextInput, StyleSheet, TouchableOpacity, Alert, Image, Modal } from 'react-native';
 import { useRouter } from 'expo-router';
 import { AppContext } from '../_layout';
 import { Translations } from '../../constants/language';
@@ -51,18 +51,19 @@ export default function Login() {
       return;
     }
 
-    if (user.role === 'Doctor' && !user.email.includes('doctor.com')) {
-      Alert.alert('Invalid Doctor Account', 'Doctor accounts must use an email containing "doctor.com".');
-      return;
-    }
+   if (user.role === 'Doctor' && !user.email.includes('doctor.com')) {
+  Alert.alert('Invalid Doctor Account', 'Doctor accounts must use an email containing "doctor.com".');
+  return;
+}
 
-    if (user.role === 'Admin') {
-      router.replace('/(admin)/user_management');
-    } else if (user.role === 'Doctor') {
-      router.replace('/(doctor)/queue');
-    } else {
-      router.replace('/(patient)/dashboard');
-    }
+if (user.role === 'Admin') {
+  router.replace('/(admin)/user_management');
+} else if (user.role === 'Doctor') {
+  // Points directly to the index dashboard home route inside the doctor directory
+  router.replace('/(doctor)');
+} else {
+  router.replace('/(patient)/dashboard');
+}
   };
 
   const handlePasswordResetSubmit = () => {
@@ -121,12 +122,21 @@ export default function Login() {
       <View style={styles.topActionHeader}>
         <Text style={[styles.brandLogoText, { color: activeColors.primary }]}>AfyaDirect</Text>
         <View style={styles.controlsRow}>
-          <AnimatedButton 
-            style={[styles.langToggleBtn, { backgroundColor: activeColors.surface, borderColor: activeColors.border }]}
-            onPress={() => setLang(lang === 'en' ? 'sw' : 'en')}
-          >
-            <Text style={[styles.langText, { color: activeColors.text }]}>{lang === 'en' ? 'EN | SW' : 'SW | EN'}</Text>
-          </AnimatedButton>
+          {/* Look for this row inside app/(auth)/login.jsx */}
+<View style={styles.controlsRow}>
+  <TouchableOpacity 
+    style={[
+      styles.langToggleBtn, 
+      { backgroundColor: activeColors.surface, borderColor: activeColors.border }
+    ]}
+    onPress={() => setLang(lang === 'en' ? 'sw' : 'en')}
+  >
+    {/* Inside button content text remains the same */}
+    <Text style={{ color: activeColors.text, fontWeight: '700', fontSize: 12 }}>
+      {lang === 'en' ? 'SW' : 'EN'}
+    </Text>
+  </TouchableOpacity>
+</View>
           
           <AnimatedButton style={styles.themeIconBtn} onPress={() => setTheme(theme === 'light' ? 'dark' : 'light')}>
             <Text style={styles.themeIconEmoji}>{theme === 'light' ? '☀️' : '🌙'}</Text>

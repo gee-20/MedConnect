@@ -120,7 +120,39 @@ export const Translations = {
   voiceCall: "Voice Call",
   videoCall: "Video Call",
   documents: "Documents",
-  uploadNew: "+ Upload New"
+  uploadNew: "+ Upload New",
+
+
+
+  // doctor transalation
+  dashboard: "Dashboard",
+    queue: "Patient Queue",
+    videoConsult: "Telehealth Room",
+    prescription: "Digital RX Builder",
+    chat: "Clinical Chat",
+    welcome: "Karibu, Dr. Mwemba",
+    subWelcome: "Manage your clinical environment and appointments.",
+    queueCount: "Queue Status",
+    waiting: "Waiting",
+    active: "In-Progress",
+    completed: "Completed",
+    earnings: "Total Monthly Earnings",
+    quickActions: "Quick Actions",
+    startNewConsult: "Start Virtual Consultation",
+    writePrescription: "Write Digital Prescription",
+    updateSchedule: "Update Clinic Availability",
+    upcomingAppts: "Upcoming Appointments",
+    patientName: "Patient Name / Jina la Mgonjwa",
+    diagnosis: "Diagnosis / Ugonjwa",
+    medication: "Medication Name",
+    dosage: "Dosage Instructions",
+    duration: "Duration (Days)",
+    sendToPatient: "Send to Patient App",
+    generatePdf: "Generate PDF Receipt",
+    symptoms: "Symptoms",
+    joinCall: "Join Video Consultation",
+    viewRecords: "View Medical History"
+
 },
 sw: {
   },
@@ -243,5 +275,37 @@ sw: {
   videoCall: "Simu ya Video",
   documents: "Nyaraka",
   uploadNew: "+ Pakia Mpya",
-  }
+
+
+  // doctor swahili transalation
+  dashboard: "Matazamio",
+    queue: "Foleni ya Wagonjwa",
+    videoConsult: "Chumba cha Matibabu",
+    prescription: "Uandishi wa Dawa",
+    chat: "Soga ya Matibabu",
+    welcome: "Karibu, Daktari Mwemba",
+    subWelcome: "Simamia mazingira yako ya kliniki na miadi ya wagonjwa.",
+    queueCount: "Hali ya Foleni",
+    waiting: "Wanaosubiri",
+    active: "Wanaohudumiwa",
+    completed: "Waliomaliza",
+    earnings: "Mapato ya Mwezi Huu",
+    quickActions: "Vitendo vya Haraka",
+    startNewConsult: "Anza Ushauri wa Mtandao",
+    writePrescription: "Andika Cheti cha Dawa (Rx)",
+    updateSchedule: "Badilisha Masaa ya Kazi",
+    upcomingAppts: "Miadi Inayofuata",
+    patientName: "Jina la Mgonjwa",
+    diagnosis: "Uchunguzi wa Ugonjwa",
+    medication: "Jina la Dawa",
+    dosage: "Maelekezo ya Matumizi",
+    duration: "Muda (Siku)",
+    sendToPatient: "Tuma Kwenye App ya Mgonjwa",
+    generatePdf: "Tengeneza Nakala ya PDF",
+    symptoms: "Dalili za Mgonjwa",
+    joinCall: "Ingia Kwenye Simu ya Video",
+    viewRecords: "Angalia Historia ya Matibabu"
+  
+}
+
 };

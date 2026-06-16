@@ -1,100 +1,106 @@
-import React, { useState, useEffect, useContext, useRef } from 'react';
-import { View, Text, StyleSheet, FlatList, TextInput, KeyboardAvoidingView, Platform } from 'react-native';
-import { useRouter } from 'expo-router';
+import React, { useContext, useState } from 'react';
+import { View, Text, StyleSheet, SafeAreaView, ScrollView, TextInput, TouchableOpacity } from 'react-native';
 import { AppContext } from '../_layout';
 import { Colors } from '../../constants/colors';
-import AnimatedButton from '../../Components/AnimatedButton';
-import { GLOBAL_CHAT_DATABASE, pushChatMessage, subscribeToChatUpdates } from '../../constants/chatStorage';
+import { Translations } from '../../constants/language';
+import DoctorHeader from '../../Components/doctor/doctor_header';
+import DoctorFooter from '../../Components/doctor/admin_footer';
 
-export default function DoctorChatScreen() {
-  const router = useRouter();
-  const { theme } = useContext(AppContext);
+export default function DoctorPatientChatScreen() {
+  const { theme, lang } = useContext(AppContext);
   const activeColors = Colors[theme];
-  
-  const [messages, setMessages] = useState(GLOBAL_CHAT_DATABASE);
-  const [typedText, setTypedText] = useState('');
-  const flatListRef = useRef(null);
+  const t = Translations[lang];
 
-  useEffect(() => {
-    // Listens to the global memory store so it updates instantly when patient types
-    const unsubscribe = subscribeToChatUpdates((updatedMessages) => {
-      setMessages(updatedMessages);
-    });
-    return unsubscribe;
-  }, []);
+  const [chatLogsList, setChatLogsList] = useState([
+    { id: '1', sender: 'patient', text: 'Hello Doctor, I finished the dosage but still feel slight fatigue.', time: '11:05 AM' },
+    { id: '2', sender: 'doctor', text: 'Hello. Keep hydrating and monitor your temperature today.', time: '11:12 AM' }
+  ]);
+  const [typedMessageDraft, setTypedMessageDraft] = useState('');
 
-  const handleSendMessage = () => {
-    if (!typedText.trim()) return;
-    pushChatMessage('Doctor', typedText.trim());
-    setTypedText('');
-    setTimeout(() => flatListRef.current?.scrollToEnd({ animated: true }), 100);
-  };
-
-  const renderMessageItem = ({ item }) => {
-    const isDoctor = item.sender === 'Doctor';
-    return (
-      <View style={[styles.msgWrapper, isDoctor ? styles.doctorWrapper : styles.patientWrapper]}>
-        <View style={[styles.msgBubble, isDoctor ? { backgroundColor: activeColors.primary } : { backgroundColor: activeColors.surface, borderColor: activeColors.border, borderWidth: 1 }]}>
-          <Text style={[styles.msgText, isDoctor ? { color: '#FFF' } : { color: activeColors.text }]}>{item.text}</Text>
-          <Text style={[styles.timeText, isDoctor ? { color: 'rgba(255,255,255,0.7)' } : { color: '#9CA3AF' }]}>{item.timestamp}</Text>
-        </View>
-      </View>
-    );
+  const sendNewChatMessage = () => {
+    if (!typedMessageDraft.trim()) return;
+    setChatLogsList(prev => [...prev, {
+      id: String(prev.length + 1),
+      sender: 'doctor',
+      text: typedMessageDraft,
+      time: '14:02 PM'
+    }]);
+    setTypedMessageDraft('');
   };
 
   return (
-    <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={[styles.container, { backgroundColor: activeColors.background }]}>
-      {/* Header matching Doctor styles */}
-      <View style={[styles.chatHeader, { backgroundColor: activeColors.surface, borderColor: activeColors.border }]}>
-        <AnimatedButton onPress={() => router.back()}>
-          <Text style={{ color: activeColors.primary, fontWeight: '700', fontSize: 16 }}>◀ Queue</Text>
-        </AnimatedButton>
-        <View style={{ alignItems: 'center' }}>
-          <Text style={[styles.headerName, { color: activeColors.text }]}>Salome (Patient)</Text>
-          <Text style={styles.headerSub}>Live Consultation Channel</Text>
+    <SafeAreaView style={[styles.safeFillContainer, { backgroundColor: activeColors.background }]}>
+      <DoctorHeader title={t.chat} />
+      
+      <View style={styles.chatWorkspaceLayoutBodyBox}>
+        <View style={[styles.recipientProfileContextNotificationBannerBar, { backgroundColor: activeColors.surface, borderBottomColor: activeColors.border }]}>
+          <Text style={[styles.recipientNameLabelText, { color: activeColors.text }]}>Case File Room: Amani Juma</Text>
+          <Text style={styles.recipientStatusLabelSpan}>Active Consultation Channel</Text>
         </View>
-        <Text style={{ opacity: 0 }}>◀ Queue</Text>
+
+        <ScrollView contentContainerStyle={styles.messageListScrollLayoutGappingContainer}>
+          {chatLogsList.map((message) => {
+            const isDoctorOutgoingMsg = message.sender === 'doctor';
+            return (
+              <View 
+                key={message.id} 
+                style={[
+                  styles.messageSpeechBubbleBoxWrapper, 
+                  isDoctorOutgoingMsg ? styles.doctorOutgoingAlignRight : styles.patientIncomingAlignLeft
+                ]}
+              >
+                <View 
+                  style={[
+                    styles.messageSpeechBubbleTextContentContainer, 
+                    { backgroundColor: isDoctorOutgoingMsg ? activeColors.primary : activeColors.surface, borderColor: activeColors.border }
+                  ]}
+                >
+                  <Text style={[styles.bubbleMessageTextBody, { color: isDoctorOutgoingMsg ? '#FFF' : activeColors.text }]}>
+                    {message.text}
+                  </Text>
+                  <Text style={[styles.bubbleTimeSubtextMeta, { color: isDoctorOutgoingMsg ? 'rgba(255,255,255,0.7)' : '#9CA3AF' }]}>
+                    {message.time}
+                  </Text>
+                </View>
+              </View>
+            );
+          })}
+        </ScrollView>
+
+        {/* Message Input Controls System Dock */}
+        <View style={[styles.inputMessageDockControlPanelRow, { backgroundColor: activeColors.surface, borderTopColor: activeColors.border }]}>
+          <TextInput 
+            style={[styles.dockTextInputElementField, { backgroundColor: activeColors.background, color: activeColors.text, borderColor: activeColors.border }]}
+            placeholder="Type clinical advice..."
+            placeholderTextColor="#9CA3AF"
+            value={typedMessageDraft}
+            onChangeText={setTypedMessageDraft}
+          />
+          <TouchableOpacity style={[styles.dockSubmitTriggerCircleButton, { backgroundColor: activeColors.primary }]} onPress={sendNewChatMessage}>
+            <Text style={{ color: '#FFF', fontWeight: 'bold' }}>➔</Text>
+          </TouchableOpacity>
+        </View>
       </View>
 
-      <FlatList
-        ref={flatListRef}
-        data={messages}
-        keyExtractor={(item) => item.id}
-        renderItem={renderMessageItem}
-        contentContainerStyle={{ padding: 16, paddingBottom: 24 }}
-        onContentSizeChange={() => flatListRef.current?.scrollToEnd({ animated: true })}
-      />
-
-      {/* Input container row */}
-      <View style={[styles.inputContainer, { backgroundColor: activeColors.surface, borderColor: activeColors.border }]}>
-        <TextInput
-          style={[styles.textInput, { borderColor: activeColors.border, color: activeColors.text }]}
-          placeholder="Andika majibu ya kitabibu..."
-          placeholderTextColor="#9CA3AF"
-          value={typedText}
-          onChangeText={setTypedText}
-        />
-        <AnimatedButton style={[styles.sendButton, { backgroundColor: activeColors.primary }]} onPress={handleSendMessage}>
-          <Text style={styles.sendButtonText}>Reply</Text>
-        </AnimatedButton>
-      </View>
-    </KeyboardAvoidingView>
+      <DoctorFooter />
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1 },
-  chatHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 14, borderWidth: 1, paddingTop: 45 },
-  headerName: { fontSize: 16, fontWeight: 'bold' },
-  headerSub: { fontSize: 12, color: '#0F766E', fontWeight: '500' },
-  msgWrapper: { width: '100%', marginVertical: 6, flexDirection: 'row' },
-  doctorWrapper: { justifyContent: 'flex-end' },
-  patientWrapper: { justifyContent: 'flex-start' },
-  msgBubble: { maxWidth: '75%', padding: 12, borderRadius: 14 },
-  msgText: { fontSize: 15, lineHeight: 20 },
-  timeText: { fontSize: 10, textAlign: 'right', marginTop: 4, fontWeight: '600' },
-  inputContainer: { flexDirection: 'row', padding: 14, alignItems: 'center', gap: 10, borderWidth: 1, paddingBottom: Platform.OS === 'ios' ? 30 : 14 },
-  textInput: { flex: 1, borderWidth: 1, borderRadius: 20, paddingHorizontal: 16, paddingVertical: 10, fontSize: 15 },
-  sendButton: { paddingHorizontal: 18, paddingVertical: 10, borderRadius: 20 },
-  sendButtonText: { color: '#FFF', fontWeight: 'bold', fontSize: 14 }
+  safeFillContainer: { flex: 1 },
+  chatWorkspaceLayoutBodyBox: { flex: 1 },
+  recipientProfileContextNotificationBannerBar: { paddingHorizontal: 16, paddingVertical: 10, borderBottomWidth: 1 },
+  recipientNameLabelText: { fontSize: 13, fontWeight: '700' },
+  recipientStatusLabelSpan: { fontSize: 11, color: '#10B981', fontWeight: '500', marginTop: 1 },
+  messageListScrollLayoutGappingContainer: { padding: 16, gap: 12 },
+  messageSpeechBubbleBoxWrapper: { flexDirection: 'row', width: '100%', marginBottom: 4 },
+  doctorOutgoingAlignRight: { justifyContent: 'flex-end' },
+  patientIncomingAlignLeft: { justifyContent: 'flex-start' },
+  messageSpeechBubbleTextContentContainer: { maxWidth: '80%', padding: 12, borderRadius: 14, borderWidth: 1 },
+  bubbleMessageTextBody: { fontSize: 13, lineHeight: 18, fontWeight: '500' },
+  bubbleTimeSubtextMeta: { fontSize: 9, textAlign: 'right', marginTop: 4 },
+  inputMessageDockControlPanelRow: { flexDirection: 'row', padding: 12, gap: 10, alignItems: 'center', borderTopWidth: 1 },
+  dockTextInputElementField: { flex: 1, height: 40, borderRadius: 20, borderWidth: 1, paddingHorizontal: 16, fontSize: 13 },
+  dockSubmitTriggerCircleButton: { width: 38, height: 38, borderRadius: 19, alignItems: 'center', justifyContent: 'center' }
 });

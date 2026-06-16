@@ -1,94 +1,71 @@
-import React, { useState, useContext } from 'react';
-import { View, Text, StyleSheet, Dimensions } from 'react-native';
+import React, { useContext } from 'react';
+import { View, Text, StyleSheet, SafeAreaView, TouchableOpacity } from 'react-native';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import { AppContext } from '../_layout';
 import { Colors } from '../../constants/colors';
-import AnimatedButton from '../../Components/AnimatedButton';
-import { useRouter } from 'expo-router';
+import { Translations } from '../../constants/language';
+import DoctorHeader from '../../Components/doctor/doctor_header';
+import DoctorFooter from '../../Components/doctor/admin_footer';
 
-const { width, height } = Dimensions.get('window');
-
-export default function VideoConsultation() {
-  const { theme } = useContext(AppContext);
+export default function VideoConsultationScreen() {
+  const { theme, lang } = useContext(AppContext);
   const activeColors = Colors[theme];
+  const t = Translations[lang];
   const router = useRouter();
+  const params = useLocalSearchParams();
 
-  const [isMuted, setIsMuted] = useState(false);
-  const [isCamOff, setIsCamOff] = useState(false);
+  const patientChannelDisplayName = params.patientName || "Amani Juma";
 
   return (
-    <View style={styles.container}>
-      {/* Main Remote Video Stream (Full Background View Mimic) */}
-      <View style={styles.remoteStreamPlaceholder}>
-        <Text style={styles.remoteStreamText}>📷 Video Feed: Dr. Kwesi Mensah</Text>
-        <Text style={styles.callDuration}>04:12</Text>
+    <SafeAreaView style={[styles.safeFillContainer, { backgroundColor: activeColors.background }]}>
+      <DoctorHeader title={t.videoConsult} />
+      
+      <View style={styles.telehealthMainFrameBodyViewport}>
+        {/* Main Remote Patient Video Stream Channel Placeholder */}
+        <View style={styles.remoteVideoStreamViewportMockBg}>
+          <Text style={styles.remoteUserWatermarkOverlayLabel}>📺 Connected to {patientChannelDisplayName}</Text>
+          
+          {/* Localized Floating PIP Camera Feed Container Preview */}
+          <View style={styles.localPipStreamCameraViewportBoxContainer}>
+            <Text style={{ fontSize: 24 }}>👨‍⚕️</Text>
+          </View>
+        </View>
+
+        {/* Dynamic Controls System Bar Overlay */}
+        <View style={[styles.overlayClinicalContextActionBarControlContainerRow, { backgroundColor: activeColors.surface, borderTopColor: activeColors.border }]}>
+          <TouchableOpacity style={styles.circularMediaToggleControlMuteIconBox}><Text style={{ fontSize: 18 }}>🎙️</Text></TouchableOpacity>
+          <TouchableOpacity style={styles.circularMediaToggleControlMuteIconBox}><Text style={{ fontSize: 18 }}>📷</Text></TouchableOpacity>
+          
+          <TouchableOpacity 
+            style={[styles.expandedClinicalShortcutRxBuilderTriggerButton, { backgroundColor: activeColors.primary }]}
+            onPress={() => router.push({ pathname: '/(doctor)/prescription', params: { patientName: patientChannelDisplayName } })}
+          >
+            <Text style={styles.expandedClinicalShortcutRxBuilderTriggerButtonLabelText}>📋 Prescription Builder</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity 
+            style={styles.circularMediaToggleControlDisconnectCallIconBox}
+            onPress={() => router.push('/(doctor)/index')}
+          >
+            <Text style={{ fontSize: 18, color: '#FFF' }}>🛑</Text>
+          </TouchableOpacity>
+        </View>
       </View>
 
-      {/* Local Video Overlay Stream (Picture-in-Picture) */}
-      <View style={[styles.localStreamOverlay, { borderColor: activeColors.primary }]}>
-        <Text style={styles.localStreamText}>{isCamOff ? '🔇 Cam Off' : 'You'}</Text>
-      </View>
-
-      {/* Floating Call Bottom Control Ribbon */}
-      <View style={[styles.controlRibbon, { backgroundColor: 'rgba(0,0,0,0.75)' }]}>
-        <AnimatedButton 
-          style={[styles.iconCircle, { backgroundColor: isMuted ? '#EF4444' : 'rgba(255,255,255,0.2)' }]} 
-          onPress={() => setIsMuted(!isMuted)}
-        >
-          <Text style={styles.iconText}>{isMuted ? '🎙️' : '🎙️'}</Text>
-        </AnimatedButton>
-
-        <AnimatedButton 
-          style={[styles.iconCircle, { backgroundColor: isCamOff ? '#EF4444' : 'rgba(255,255,255,0.2)' }]} 
-          onPress={() => setIsCamOff(!isCamOff)}
-        >
-          <Text style={styles.iconText}>📹</Text>
-        </AnimatedButton>
-
-        <AnimatedButton 
-          style={[styles.iconCircle, { backgroundColor: '#EF4444', width: 65, height: 65 }]} 
-          onPress={() => {
-            router.back();
-          }}
-        >
-          <Text style={styles.iconText}>🛑</Text>
-        </AnimatedButton>
-      </View>
-    </View>
+      <DoctorFooter />
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#000' },
-  remoteStreamPlaceholder: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#1F2937' },
-  remoteStreamText: { color: '#FFF', fontSize: 16, fontWeight: '600' },
-  callDuration: { color: '#10B981', fontSize: 14, fontWeight: 'bold', marginTop: 8 },
-  localStreamOverlay: { 
-    position: 'absolute', 
-    top: 50, 
-    right: 20, 
-    width: 110, 
-    height: 160, 
-    borderRadius: 12, 
-    backgroundColor: '#374151', 
-    borderWidth: 2, 
-    justifyContent: 'center', 
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOpacity: 0.3,
-    shadowRadius: 5
-  },
-  localStreamText: { color: '#FFF', fontSize: 12, fontWeight: '500' },
-  controlRibbon: { 
-    position: 'absolute', 
-    bottom: 30, 
-    left: 20, 
-    right: 20, 
-    padding: 16, 
-    borderRadius: 24, 
-    flexDirection: 'row', 
-    justifyContent: 'space-around', 
-    alignItems: 'center' 
-  },
-  iconCircle: { width: 50, height: 50, borderRadius: 30, justifyContent: 'center', alignItems: 'center' },
-  iconText: { fontSize: 20, color: '#FFF' }
+  safeFillContainer: { flex: 1 },
+  telehealthMainFrameBodyViewport: { flex: 1, justifyContent: 'flex-end' },
+  remoteVideoStreamViewportMockBg: { flex: 1, backgroundColor: '#1F2937', justifyContent: 'center', alignItems: 'center' },
+  remoteUserWatermarkOverlayLabel: { color: '#FFF', opacity: 0.7, fontWeight: '600', fontSize: 14 },
+  localPipStreamCameraViewportBoxContainer: { position: 'absolute', top: 16, right: 16, width: 90, height: 130, borderRadius: 12, backgroundColor: '#374151', borderWidth: 1.5, borderColor: '#FFF', justifyContent: 'center', alignItems: 'center' },
+  overlayClinicalContextActionBarControlContainerRow: { flexDirection: 'row', padding: 16, justifyContent: 'space-between', alignItems: 'center', borderTopWidth: 1 },
+  circularMediaToggleControlMuteIconBox: { width: 44, height: 44, borderRadius: 22, backgroundColor: 'rgba(0,0,0,0.04)', alignItems: 'center', justifyContent: 'center' },
+  expandedClinicalShortcutRxBuilderTriggerButton: { paddingHorizontal: 16, paddingVertical: 12, borderRadius: 22, justifyContent: 'center', alignItems: 'center' },
+  expandedClinicalShortcutRxBuilderTriggerButtonLabelText: { color: '#FFF', fontWeight: '700', fontSize: 12 },
+  circularMediaToggleControlDisconnectCallIconBox: { width: 44, height: 44, borderRadius: 22, backgroundColor: '#EF4444', alignItems: 'center', justifyContent: 'center' }
 });
