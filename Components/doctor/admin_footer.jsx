@@ -5,61 +5,146 @@ import { AppContext } from '../../app/_layout';
 import { Colors } from '../../constants/colors';
 
 export default function DoctorFooter() {
-  const { theme } = useContext(AppContext);
+  const { theme, lang } = useContext(AppContext);
   const activeColors = Colors[theme];
   const router = useRouter();
+  
+  // 1. Get the current active URL pathname dynamically
   const pathname = usePathname();
 
-  // Updated navigation items matching your layout rule specs exactly
-  const navItems = [
-    { id: 'dashboard', label: 'Dashboard', path: '/(doctor)', icon: '📊' },
-    { id: 'queue', label: 'Queue', path: '/(doctor)/queue', icon: '📋' },
-    { id: 'records', label: 'Records', path: '/(doctor)/records', icon: '📁' },
-    { id: 'earnings', label: 'Earnings', path: '/(doctor)/earnings', icon: '💵' },
-    { id: 'profile', label: 'Profile', path: '/(doctor)/profile', icon: '👤' },
-  ];
+  // Helper to determine if a specific tab path is active
+  const isActive = (targetRoute) => {
+    // Matches exact path or checking if path ends with target route layout
+    return pathname === targetRoute || pathname.endsWith(targetRoute);
+  };
+
+  // 2. Set dynamic active indicator colors for visibility states
+  const getActiveItemColor = () => {
+    if (theme === 'dark') {
+      return '#10B981'; // Highly visible vivid green-teal for dark mode surfaces
+    }
+    return '#046A38'; // Solid deep green for light mode readability
+  };
+
+  const getInactiveItemColor = () => {
+    return '#9CA3AF'; // Muted slate gray for inactive items
+  };
+
+  // Safe navigation wrapper to avoid redundant pushes to the exact same screen
+  const navigateTo = (route) => {
+    if (!isActive(route)) {
+      router.replace(route);
+    }
+  };
+
+  // Localization labels for navigation tracks
+  const labels = {
+    en: { dashboard: 'Dashboard', queue: 'Queue', records: 'Records', earnings: 'Earnings', profile: 'Profile' },
+    sw: { dashboard: 'Dashibodi', queue: 'Foleni', records: 'Kumbukumbu', earnings: 'Mapato', profile: 'Wasifu' }
+  };
+  
+  const currentLabels = labels[lang] || labels.en;
 
   return (
-    <View style={[styles.footerContainer, { backgroundColor: activeColors.surface, borderTopColor: activeColors.border }]}>
-      {navItems.map((item) => {
-        const isActive = pathname === item.path;
-        return (
-          <TouchableOpacity 
-            key={item.id} 
-            style={styles.navButton} 
-            onPress={() => router.push(item.path)}
-          >
-            <Text style={[styles.iconText, isActive && { opacity: 1 }]}>{item.icon}</Text>
-            <Text style={[styles.labelText, { color: isActive ? activeColors.primary : '#6B7280', fontWeight: isActive ? '700' : '500' }]}>
-              {item.label}
-            </Text>
-          </TouchableOpacity>
-        );
-      })}
+    <View style={[styles.footerContainerContainerFlexRow, { backgroundColor: activeColors.surface, borderColor: activeColors.border }]}>
+      
+      {/* 1. DASHBOARD TAB */}
+      <TouchableOpacity style={styles.footerTabCellButtonOption} onPress={() => navigateTo('/(doctor)')}>
+        <Text style={[styles.tabIconGlyphGraphicText, { color: isActive('/(doctor)') ? getActiveItemColor() : getInactiveItemColor() }]}>
+          📊
+        </Text>
+        <Text style={[styles.tabLabelText, { 
+          color: isActive('/(doctor)') ? getActiveItemColor() : getInactiveItemColor(),
+          fontWeight: isActive('/(doctor)') ? '700' : '500'
+        }]}>
+          {currentLabels.dashboard}
+        </Text>
+      </TouchableOpacity>
+
+      {/* 2. QUEUE TAB */}
+      <TouchableOpacity style={styles.footerTabCellButtonOption} onPress={() => navigateTo('/(doctor)/queue')}>
+        <Text style={[styles.tabIconGlyphGraphicText, { color: isActive('/queue') ? getActiveItemColor() : getInactiveItemColor() }]}>
+          📋
+        </Text>
+        <Text style={[styles.tabLabelText, { 
+          color: isActive('/queue') ? getActiveItemColor() : getInactiveItemColor(),
+          fontWeight: isActive('/queue') ? '700' : '500'
+        }]}>
+          {currentLabels.queue}
+        </Text>
+      </TouchableOpacity>
+
+      {/* 3. RECORDS TAB */}
+      <TouchableOpacity style={styles.footerTabCellButtonOption} onPress={() => navigateTo('/(doctor)/records')}>
+        <Text style={[styles.tabIconGlyphGraphicText, { color: isActive('/records') ? getActiveItemColor() : getInactiveItemColor() }]}>
+          📁
+        </Text>
+        <Text style={[styles.tabLabelText, { 
+          color: isActive('/records') ? getActiveItemColor() : getInactiveItemColor(),
+          fontWeight: isActive('/records') ? '700' : '500'
+        }]}>
+          {currentLabels.records}
+        </Text>
+      </TouchableOpacity>
+
+      {/* 4. EARNINGS TAB */}
+      <TouchableOpacity style={styles.footerTabCellButtonOption} onPress={() => navigateTo('/(doctor)/earnings')}>
+        <Text style={[styles.tabIconGlyphGraphicText, { color: isActive('/earnings') ? getActiveItemColor() : getInactiveItemColor() }]}>
+          💵
+        </Text>
+        <Text style={[styles.tabLabelText, { 
+          color: isActive('/earnings') ? getActiveItemColor() : getInactiveItemColor(),
+          fontWeight: isActive('/earnings') ? '700' : '500'
+        }]}>
+          {currentLabels.earnings}
+        </Text>
+      </TouchableOpacity>
+
+      {/* 5. PROFILE TAB */}
+      <TouchableOpacity style={styles.footerTabCellButtonOption} onPress={() => navigateTo('/(doctor)/profile')}>
+        <Text style={[styles.tabIconGlyphGraphicText, { color: isActive('/profile') ? getActiveItemColor() : getInactiveItemColor() }]}>
+          👤
+        </Text>
+        <Text style={[styles.tabLabelText, { 
+          color: isActive('/profile') ? getActiveItemColor() : getInactiveItemColor(),
+          fontWeight: isActive('/profile') ? '700' : '500'
+        }]}>
+          {currentLabels.profile}
+        </Text>
+      </TouchableOpacity>
+
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  footerContainer: {
+  footerContainerContainerFlexRow: {
     flexDirection: 'row',
     height: 64,
     borderTopWidth: 1,
-    justifyContent: 'space-around',
     alignItems: 'center',
-    paddingBottom: 4,
+    justifyContent: 'space-around',
+    paddingBottom: 6,
+    paddingTop: 4,
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    width: '100%'
   },
-  navButton: {
+  footerTabCellButtonOption: {
     alignItems: 'center',
     justifyContent: 'center',
     flex: 1,
+    height: '100%',
+    gap: 3
   },
-  iconText: {
+  tabIconGlyphGraphicText: {
     fontSize: 18,
-    opacity: 0.6,
+    textAlign: 'center'
   },
-  labelText: {
+  tabLabelText: {
     fontSize: 10,
-    marginTop: 2,
-  },
+    letterSpacing: -0.1
+  }
 });

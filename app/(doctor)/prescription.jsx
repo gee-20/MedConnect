@@ -159,19 +159,7 @@ export default function DigitalPrescriptionScreen() {
           <Text style={[styles.actionBtnSecondaryText, { color: activeColors.text }]}>🖨️ Print for In-Person</Text>
         </TouchableOpacity>
 
-        {/* Bottom Language System Toggle Bar */}
-        <View style={[styles.languageToggleRowBar, { backgroundColor: theme === 'dark' ? '#1F2937' : '#F3F4F6' }]}>
-          <Text style={{ fontSize: 12, color: '#6B7280' }}>🌐 Output Language</Text>
-          <View style={styles.langSwitchToggleFrameBtn}>
-            <TouchableOpacity style={[styles.langCell, lang === 'en' && styles.langCellActive]} onPress={() => setLang('en')}>
-              <Text style={[styles.langText, lang === 'en' && { fontWeight: '700', color: activeColors.text }]}>EN</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={[styles.langCell, lang === 'sw' && styles.langCellActive]} onPress={() => setLang('sw')}>
-              <Text style={[styles.langText, lang === 'sw' && { fontWeight: '700', color: activeColors.text }]}>SW</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-
+       
       </ScrollView>
 
       <DoctorFooter />
